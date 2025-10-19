@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Volunteer API</title>
+</head>
+<body>
+  <h1>Test Add Volunteer</h1>
+  <button id="testBtn">Add Volunteer</button>
+
+  <script>
+    document.getElementById('testBtn').onclick = async () => {
+      const response = await fetch('http://127.0.0.1:5000/volunteers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Isha Magar',
+          email: 'isha@example.com',
+          phone: '9876543210'
+        })
+      });
+
+      const data = await response.json();
+      alert(JSON.stringify(data)); // Shows the response
+    };
+  </script>
+</body>
+</html>

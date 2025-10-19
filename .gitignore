@@ -1,0 +1,10 @@
+# Node and Next.js build files
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+
+# Python backend
+_backend/venv/
+_backend/__pycache__/
+_backend/.env
+_backend/instance/
