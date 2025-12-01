@@ -1,27 +1,49 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Test Volunteer API</title>
-</head>
-<body>
-  <h1>Test Add Volunteer</h1>
-  <button id="testBtn">Add Volunteer</button>
+  <body>
+    <h2>Register</h2>
+    <button onclick="register()">Register User</button>
 
-  <script>
-    document.getElementById('testBtn').onclick = async () => {
-      const response = await fetch('http://127.0.0.1:5000/volunteers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Isha Magar',
-          email: 'isha@example.com',
-          phone: '9876543210'
-        })
-      });
+    <h2>Login</h2>
+    <button onclick="login()">Login User</button>
 
-      const data = await response.json();
-      alert(JSON.stringify(data)); // Shows the response
-    };
-  </script>
-</body>
+    <script>
+      async function register() {
+        try {
+          const res = await fetch("http://127.0.0.1:5000/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: "harey Ram ",
+              email: "ram@example.com",
+              password: "123456"
+            }),
+          });
+
+          const data = await res.json();
+          console.log("Register response:", data);
+        } catch (err) {
+          console.error("Register error:", err);
+        }
+      }
+
+      async function login() {
+        try {
+          const res = await fetch("http://127.0.0.1:5000/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: "ram@example.com",
+              password: "123456"
+            }),
+          });
+
+          const data = await res.json();
+          console.log("Login response:", data);
+        } catch (err) {
+          console.error("Login error:", err);
+        }
+      }
+    </script>
+  </body>
 </html>

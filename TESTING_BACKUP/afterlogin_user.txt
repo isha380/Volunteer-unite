@@ -1,0 +1,634 @@
+------------------src/pages/dashboard------------------------------
+
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Heart, LogOut, Trophy, Calendar, CheckCircle, Users, Send, Bell } from "lucide-react";
+import { toast } from "sonner";
+import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+const eventTypeData = [
+  { name: "Healthcare", value: 30, color: "hsl(var(--primary))" },
+  { name: "Environment", value: 25, color: "hsl(var(--secondary))" },
+  { name: "Education", value: 20, color: "hsl(var(--accent))" },
+  { name: "Community", value: 15, color: "hsl(var(--muted))" },
+  { name: "Emergency", value: 10, color: "hsl(210, 55%, 70%)" },
+];
+
+const activityData = [
+  { month: "Jun", events: 3 },
+  { month: "Jul", events: 5 },
+  { month: "Aug", events: 4 },
+  { month: "Sep", events: 7 },
+  { month: "Oct", events: 6 },
+  { month: "Nov", events: 8 },
+];
+
+const mockUpdates = [
+  {
+    id: 1,
+    title: "New Volunteer Training Session",
+    message: "Join us for a comprehensive training session this Saturday at 10 AM.",
+    date: "2025-11-25",
+    type: "info"
+  },
+  {
+    id: 2,
+    title: "Emergency Relief Event - Help Needed",
+    message: "Urgent volunteers needed for flood relief operations. Click to apply.",
+    date: "2025-11-24",
+    type: "urgent"
+  },
+  {
+    id: 3,
+    title: "Thank You for Your Service!",
+    message: "Your contributions have made a significant impact. Keep up the great work!",
+    date: "2025-11-23",
+    type: "success"
+  },
+];
+
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("volunteer_logged_in");
+    if (!isLoggedIn) {
+      toast.error("Please login to access dashboard");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("volunteer_logged_in");
+    toast.success("Logged out successfully");
+    navigate("/login");
+  };
+
+  const handleSendMessage = () => {
+    if (!message.trim()) {
+      toast.error("Please enter a message");
+      return;
+    }
+    toast.success("Message sent to admin successfully");
+    setMessage("");
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Header */}
+      <header className="bg-card border-b border-border shadow-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-card">
+                <Heart className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Volunteer Unite</h1>
+                <p className="text-xs text-muted-foreground">Making a difference together</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => navigate("/browse")} 
+                variant="ghost"
+                className="text-foreground hover:text-primary"
+              >
+                Browse Events
+              </Button>
+              <Button 
+                onClick={() => navigate("/dashboard")} 
+                variant="ghost"
+                className="text-primary font-semibold"
+              >
+                Dashboard
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                        VU
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-2">
+                    <p className="text-sm font-medium text-foreground">Volunteer</p>
+                    <p className="text-xs text-muted-foreground">volunteer@example.com</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8 animate-fade-in">
+          <h2 className="text-3xl font-bold text-foreground mb-2">Welcome back, Volunteer!</h2>
+          <p className="text-muted-foreground">Here's your impact overview</p>
+        </div>
+
+        {/* Recognition Badge & Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {/* Trophy Badge */}
+          <Card className="p-6 bg-gradient-primary shadow-card border-0">
+            <div className="flex flex-col items-center justify-center text-center">
+              <Trophy className="w-12 h-12 text-primary-foreground mb-3" />
+              <p className="text-4xl font-bold text-primary-foreground">16</p>
+              <p className="text-sm text-primary-foreground/80 mt-1">Recognition Points</p>
+            </div>
+          </Card>
+
+          {/* Total Events Applied */}
+          <Card className="p-6 shadow-card">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-foreground">12</p>
+            <p className="text-sm text-muted-foreground">Total Applied</p>
+          </Card>
+
+          {/* Approved Events */}
+          <Card className="p-6 shadow-card">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-foreground">10</p>
+            <p className="text-sm text-muted-foreground">Approved</p>
+          </Card>
+
+          {/* Attended Events */}
+          <Card className="p-6 shadow-card">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+                <Users className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-foreground">8</p>
+            <p className="text-sm text-muted-foreground">Attended</p>
+          </Card>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Donut Chart - Event Distribution */}
+          <Card className="p-6 shadow-card">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Event Distribution</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={eventTypeData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {eventTypeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              {eventTypeData.map((item, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-xs text-muted-foreground">{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Line Chart - Activity Over Time */}
+          <Card className="p-6 shadow-card">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Activity Overview</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={activityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                <YAxis stroke="hsl(var(--muted-foreground))" />
+                <Tooltip />
+                <Line 
+                  type="monotone" 
+                  dataKey="events" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={3}
+                  dot={{ fill: "hsl(var(--primary))", r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        </div>
+
+        {/* Updates & Messaging Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Admin Updates */}
+          <Card className="p-6 shadow-card">
+            <div className="flex items-center gap-2 mb-4">
+              <Bell className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold text-foreground">Updates & Announcements</h3>
+            </div>
+            <div className="space-y-4 max-h-80 overflow-y-auto">
+              {mockUpdates.map((update) => (
+                <div 
+                  key={update.id} 
+                  className={`p-4 rounded-lg border ${
+                    update.type === 'urgent' 
+                      ? 'bg-destructive/10 border-destructive/30' 
+                      : update.type === 'success'
+                      ? 'bg-primary/10 border-primary/30'
+                      : 'bg-muted border-border'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <h4 className="font-semibold text-sm text-foreground">{update.title}</h4>
+                    <span className="text-xs text-muted-foreground">{update.date}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{update.message}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Send Message to Admin */}
+          <Card className="p-6 shadow-card">
+            <div className="flex items-center gap-2 mb-4">
+              <Send className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold text-foreground">Message Admin</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Send a message to the admin team. We'll respond as soon as possible.
+            </p>
+            <Textarea
+              placeholder="Type your message here..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="min-h-32 mb-4"
+            />
+            <Button 
+              onClick={handleSendMessage} 
+              className="w-full"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Send Message
+            </Button>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Dashboard;
+-----------------------------------src/App.tsx----------------------------
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Browse from "./pages/Browse";
+import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
+
+
+-----------------------------src/Pages/Browse.tsx-----------------------------
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, LogOut, Heart, Users, Calendar, MapPin, Clock } from "lucide-react";
+import EventCard from "@/components/EventCard";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+const mockEvents = [
+  {
+    id: 1,
+    title: "Community Blood Donation Drive",
+    description: "Help save lives by participating in our urgent blood donation event. All blood types needed.",
+    location: "Central Hospital, Downtown",
+    date: "2025-10-20",
+    time: "09:00 AM - 5:00 PM",
+    volunteers: 15,
+    maxVolunteers: 30,
+    category: "Healthcare",
+    urgent: true,
+    skills: ["First Aid", "Healthcare"],
+  },
+  {
+    id: 2,
+    title: "Beach Cleanup Initiative",
+    description: "Join us in cleaning our local beaches and protecting marine life. Equipment provided.",
+    location: "Sunset Beach",
+    date: "2025-10-25",
+    time: "7:00 AM - 12:00 PM",
+    volunteers: 42,
+    maxVolunteers: 50,
+    category: "Environment",
+    urgent: false,
+    skills: ["Environmental Conservation"],
+  },
+  {
+    id: 3,
+    title: "Emergency Flood Relief",
+    description: "Urgent: Help distribute supplies and assist families affected by recent flooding.",
+    location: "Riverside Community Center",
+    date: "2025-10-18",
+    time: "8:00 AM - 8:00 PM",
+    volunteers: 67,
+    maxVolunteers: 100,
+    category: "Emergency",
+    urgent: true,
+    skills: ["First Aid", "Event Organization"],
+  },
+  {
+    id: 4,
+    title: "Community Teaching Workshop",
+    description: "Share your knowledge by teaching underprivileged children. Various subjects needed.",
+    location: "Community Learning Center",
+    date: "2025-10-30",
+    time: "2:00 PM - 5:00 PM",
+    volunteers: 8,
+    maxVolunteers: 15,
+    category: "Education",
+    urgent: false,
+    skills: ["Teaching"],
+  },
+  {
+    id: 5,
+    title: "Food Bank Organization",
+    description: "Help sort and pack food supplies for families in need. Great for team building.",
+    location: "City Food Bank",
+    date: "2025-10-22",
+    time: "10:00 AM - 3:00 PM",
+    volunteers: 23,
+    maxVolunteers: 40,
+    category: "Community",
+    urgent: false,
+    skills: ["Event Organization"],
+  },
+  {
+    id: 6,
+    title: "Senior Care Visit",
+    description: "Spend quality time with seniors, providing companionship and assistance.",
+    location: "Sunshine Senior Home",
+    date: "2025-10-28",
+    time: "1:00 PM - 4:00 PM",
+    volunteers: 5,
+    maxVolunteers: 12,
+    category: "Healthcare",
+    urgent: false,
+    skills: ["Healthcare", "Teaching"],
+  },
+];
+
+const Browse = () => {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredEvents, setFilteredEvents] = useState(mockEvents);
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("volunteer_logged_in");
+    if (!isLoggedIn) {
+      toast.error("Please login to browse events");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const filtered = mockEvents.filter(
+      (event) =>
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    setFilteredEvents(filtered);
+  }, [searchQuery]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("volunteer_logged_in");
+    toast.success("Logged out successfully");
+    navigate("/login");
+  };
+
+  const handleApply = (eventId: number, eventTitle: string) => {
+    toast.success(`Applied to "${eventTitle}"! You'll receive confirmation soon.`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Header */}
+      <header className="bg-card border-b border-border shadow-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-card">
+                <Heart className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Volunteer Unite</h1>
+                <p className="text-xs text-muted-foreground">Making a difference together</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={() => navigate("/browse")} 
+                variant="ghost"
+                className="text-primary font-semibold"
+              >
+                Browse Events
+              </Button>
+              <Button 
+                onClick={() => navigate("/dashboard")} 
+                variant="ghost"
+                className="text-foreground hover:text-primary"
+              >
+                Dashboard
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                        VU
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-2">
+                    <p className="text-sm font-medium text-foreground">Volunteer</p>
+                    <p className="text-xs text-muted-foreground">volunteer@example.com</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Hero Section */}
+        <div className="mb-10 text-center animate-fade-in">
+          <h2 className="text-4xl font-bold text-foreground mb-3">
+            Discover Volunteer Opportunities
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Find events that match your skills and interests. Every contribution makes a difference.
+          </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto mb-10 animate-slide-up">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by title, category, or skills..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 h-14 text-base shadow-card border-2 focus:border-primary transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          <div className="bg-card rounded-xl p-6 shadow-card border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{mockEvents.length}</p>
+                <p className="text-sm text-muted-foreground">Active Events</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-6 shadow-card border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">
+                  {mockEvents.reduce((sum, event) => sum + event.volunteers, 0)}
+                </p>
+                <p className="text-sm text-muted-foreground">Total Volunteers</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-6 shadow-card border border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">
+                  {mockEvents.filter(e => e.urgent).length}
+                </p>
+                <p className="text-sm text-muted-foreground">Urgent Events</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Events Grid */}
+        <div>
+          <h3 className="text-2xl font-bold text-foreground mb-6">
+            Available Opportunities
+          </h3>
+          {filteredEvents.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-lg text-muted-foreground">No events found matching your search.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredEvents.map((event) => (
+                <EventCard key={event.id} event={event} onApply={handleApply} />
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Browse;

@@ -1,0 +1,80 @@
+/* ====== GLOBAL COLORS ====== */
+:root {
+  --primary-color: #2b6cb0;      /* Blue shade */
+  --primary-hover: #2c5282;
+  --secondary-color: #edf2f7;    /* Light gray background */
+  --text-color: #1a202c;         /* Dark text */
+  --border-radius: 10px;
+}
+
+/* ====== BASE STYLES ====== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--secondary-color);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* ====== FORM CONTAINER ====== */
+.container {
+  background: #fff;
+  padding: 40px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+h2 {
+  text-align: center;
+  color: var(--primary-color);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input, textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+small {
+  text-align: center;
+  display: block;
+  color: #555;
+}

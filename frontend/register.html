@@ -1,0 +1,42 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join Volunteer Unite</title>
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Join Volunteer Unite</h2>
+    <p style="text-align:center;color:#555;">Create your account and start making a difference</p>
+
+    <form id="registerForm" enctype="multipart/form-data">
+
+      <input type="text" id="fullname" placeholder="Full Name" required />
+
+      <input type="email" id="email" placeholder="Email Address" required />
+
+      <input type="text" id="phone" placeholder="Phone Number" required />
+
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+
+
+      <textarea id="skills" placeholder="Skills & Interests (e.g. First Aid, Event Management)" required></textarea>
+
+      <input type="text" id="availability" placeholder="Availability (Optional)" />
+
+      <label>Upload Profile Photo:</label>
+      <input type="file" id="profile" accept="image/*" required />
+
+      <button type="submit">Create Account</button>
+      <small>Already have an account? <a href="login.html">Sign in here</a></small>
+    </form>
+  </div>
+
+  <script src="./js/register.js"></script>
+</body>
+</html>

@@ -6,5 +6,11 @@ frontend/.env.local
 # Python backend
 _backend/venv/
 _backend/__pycache__/
+
+_backend/*.pyc   
+# ignore Python compiled files
 _backend/.env
 _backend/instance/
+
+
+
