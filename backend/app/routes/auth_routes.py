@@ -280,12 +280,17 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+from flask_jwt_extended import create_access_token
 from app.models import User
 from app.models.volunteer_model import Volunteer
 from app import db
 import jwt
 import datetime
 import os
+from app.models.admin_model import Admin
+
+
+
 
 auth_bp = Blueprint('auth', __name__)
 CORS(auth_bp)
@@ -310,11 +315,12 @@ def register():
         phone = request.form.get('phone')
         password = request.form.get('password')
         skills = request.form.get('skills')
+        interests = request.form.get('interests')
         availability = request.form.get('availability')
 
-        profile = request.files.get('profile')  # REQUIRED IMAGE
+        profile = request.files.get('profile') 
 
-        # Validate required fields (profile REQUIRED)
+       
         if not name or not email or not phone or not password or not skills or not profile:
             return jsonify({"message": "Missing required fields"}), 400
 
@@ -331,7 +337,7 @@ def register():
         )
         profile.save(save_path)
 
-        # Hash password
+        
         hashed_password = generate_password_hash(password)
 
         # Create volunteer (store in volunteers table)
@@ -340,6 +346,7 @@ def register():
             email=email,
             phone=phone,
             skills=skills,
+            interests=interests,
             availability=availability,
             profile=profile_filename,
             password_hash=hashed_password,
@@ -377,48 +384,45 @@ def login():
     email = data.get('email')
     password = data.get('password')
 
-    # Try users table first
-    user = User.query.filter_by(email=email).first()
-    if user and check_password_hash(user.password_hash, password):
-        token = jwt.encode({
-            "user_id": user.user_id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=12)
-        }, current_app.config['SECRET_KEY'], algorithm="HS256")
+    # starting from admins table first
+    admin = Admin.query.filter_by(email=email).first()
+    if admin and check_password_hash(admin.password_hash, password):
+        token = create_access_token(
+            identity=str(admin.admin_id),              
+            additional_claims={"role": "admin"}        
+        )
 
         return jsonify({
-            "message": "Login successful",
-            "token": token,
-            "user_id": user.user_id,
+            "message": "Admin login successful",
+            "access_token": token,
             "user": {
-                "user_id": user.user_id,
-                "name": user.name,
-                "email": user.email,
-                "phone": getattr(user, 'phone', None),
-                "profile": getattr(user, 'profile', None),
-                "role": user.role
+                "id": admin.admin_id,
+                "name": admin.name,
+                "email": admin.email,
+                "profile": admin.profile,
+                "phone": admin.phone,
+                "role": "admin"
             }
         }), 200
 
-    # If not found in users, try volunteers table
+   
     volunteer = Volunteer.query.filter_by(email=email).first()
     if volunteer and check_password_hash(volunteer.password_hash, password):
-        token = jwt.encode({
-            "user_id": volunteer.volunteer_id,
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=12)
-        }, current_app.config['SECRET_KEY'], algorithm="HS256")
+        token = create_access_token(
+            identity=str(volunteer.volunteer_id),      
+            additional_claims={"role": "volunteer"}    
+        )
 
         return jsonify({
-            "message": "Login successful",
-            "token": token,
-            "user_id": volunteer.volunteer_id,
+            "message": "Volunteer login successful",
+            "access_token": token,
             "user": {
-                "volunteer_id": volunteer.volunteer_id,
+                "id": volunteer.volunteer_id,
                 "name": volunteer.name,
                 "email": volunteer.email,
-                "phone": volunteer.phone,
                 "profile": volunteer.profile,
-                "role": volunteer.role,
-                "joined_at": volunteer.joined_at
+                "phone": volunteer.phone,
+                "role": "volunteer"
             }
         }), 200
 

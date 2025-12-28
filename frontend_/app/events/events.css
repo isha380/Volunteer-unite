@@ -1,0 +1,63 @@
+/* Page background */
+.events-page {
+  background: #f4f7fb;
+  min-height: 100vh;
+  padding: 40px 0;
+}
+
+/* Main container */
+.events-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+.events-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.events-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f3a5f;
+  margin-bottom: 10px;
+}
+
+.events-header p {
+  font-size: 15px;
+  color: #5f7c9a;
+  margin-bottom: 25px;
+}
+
+/* Search bar */
+.events-search {
+  width: 100%;
+  max-width: 520px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 1px solid #d6e0ef;
+  font-size: 14px;
+  outline: none;
+  background: white;
+}
+
+.events-search::placeholder {
+  color: #9bb0c9;
+}
+
+/* Stats row */
+.events-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  margin-top: 100px;
+  font-size: 16px;
+}
+

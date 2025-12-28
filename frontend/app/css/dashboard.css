@@ -1,0 +1,41 @@
+.dashboard-container {
+  padding: 40px;
+  text-align: center;
+  background: #f5f8ff;
+  min-height: 100vh;
+}
+
+.dashboard-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.dashboard-subtitle {
+  color: #687a8f;
+  margin-bottom: 25px;
+}
+
+.search-bar {
+  width: 55%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #dce3f0;
+  margin: 20px auto;
+  display: block;
+  background: white;
+}
+
+.stats-row {
+  margin-top: 35px;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
+
+.section-title {
+  text-align: left;
+  margin-top: 50px;
+  font-size: 22px;
+  font-weight: 600;
+}
