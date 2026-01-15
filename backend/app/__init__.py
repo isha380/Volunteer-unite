@@ -86,5 +86,12 @@ def create_app():
     @app.route('/')
     def home():
         return {"message": "Volunteer Unite backend is running successfully!"}
+    
+    @app.route('/profile_pics/<filename>')
+    def serve_profile_image(filename):
+        return send_from_directory(
+            app.config['UPLOAD_FOLDER'],
+            filename
+        )
 
     return app

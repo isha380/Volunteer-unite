@@ -57,6 +57,7 @@ export default function RegisterPage() {
   };
 
   return (
+  <div className="page-wrapper">
     <div className="container">
       <h2>Join Volunteer Unite</h2>
       <p style={{ textAlign: "center", color: "#555" }}>
@@ -64,8 +65,6 @@ export default function RegisterPage() {
       </p>
 
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-
-        {/* Row 1 — Full Name + Email */}
         <div className="row">
           <input
             type="text"
@@ -74,7 +73,6 @@ export default function RegisterPage() {
             value={fullname}
             onChange={(e) => setFullname(e.target.value)}
           />
-
           <input
             type="email"
             placeholder="Email Address"
@@ -84,7 +82,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Row 2 — Password + Confirm */}
         <div className="row">
           <input
             type="password"
@@ -93,7 +90,6 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-
           <input
             type="password"
             placeholder="Confirm Password"
@@ -103,7 +99,6 @@ export default function RegisterPage() {
           />
         </div>
 
-        {/* Single Column Fields */}
         <input
           type="text"
           placeholder="Phone Number"
@@ -111,7 +106,6 @@ export default function RegisterPage() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
-
         <textarea
           placeholder="Skills "
           required
@@ -133,20 +127,21 @@ export default function RegisterPage() {
         />
 
         <label>Upload Profile Photo:</label>
-              <input
-                type="file"
-                accept="image/*"
-                required
-                onChange={(e) => setProfile(e.target.files?.[0] || null)}
-              />
+        <input
+          type="file"
+          accept="image/*"
+          required
+          onChange={(e) => setProfile(e.target.files?.[0] || null)}
+        />
 
         <button type="submit">Create Account</button>
 
         <small>
-          Already have an account?{" "}
-          <a href="/login">Sign in here</a>
+          Already have an account? <a href="/login">Sign in here</a>
         </small>
       </form>
     </div>
-  );
+  </div>
+);
+
 }
