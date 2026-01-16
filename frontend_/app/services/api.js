@@ -1,5 +1,3 @@
-
-
 const API_URL = "http://127.0.0.1:5000";
 
 // ---------------- Login ----------------
@@ -11,10 +9,9 @@ export const loginUser = async (email, password) => {
   });
 
   const data = await res.json();
-  console.log("Full login response:", data); // Debug
+  console.log("Full login response:", data);
 
   if (res.ok) {
-    // Backend returns 'access_token', not 'token'
     const token = data.access_token;
     
     if (!token) {
@@ -22,8 +19,6 @@ export const loginUser = async (email, password) => {
       throw new Error("Login response missing token");
     }
 
-    // Store token and user info in localStorage
-    // Note: backend returns user.id, not user_id
     localStorage.setItem("access_token", token);
     localStorage.setItem("user_id", data.user.id);
     localStorage.setItem("user_data", JSON.stringify(data.user));
@@ -37,16 +32,14 @@ export const loginUser = async (email, password) => {
   }
 };
 
-// ---------------- Dashboard stats (Works with or without token) ----------------
+// ---------------- Dashboard stats ----------------
 export const getDashboardStats = async () => { 
   const token = localStorage.getItem("access_token");
   
-  // Build headers object
   const headers = {
     "Content-Type": "application/json"
   };
   
-  // Only add Authorization header if token exists
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -74,6 +67,7 @@ export const getVolunteerProfile = async () => {
   }
 
   const res = await fetch(`${API_URL}/volunteers/volunteer/profile`, {
+    method: "GET",
     headers: { 
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
@@ -84,6 +78,59 @@ export const getVolunteerProfile = async () => {
     const errorBody = await res.text();
     console.error("Error fetching profile:", res.status, res.statusText, errorBody);
     throw new Error(`Failed to fetch volunteer profile: ${res.status} ${res.statusText}`);
+  }
+
+  return res.json();
+};
+
+// ---------------- Update volunteer profile (TEXT ONLY) ----------------
+export const updateVolunteerProfile = async (profileData) => {
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    throw new Error("No access token found. Please login.");
+  }
+
+  const res = await fetch(`${API_URL}/volunteers/volunteer/profile`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(profileData)
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.message || `Failed to update profile: ${res.status}`);
+  }
+
+  return res.json();
+};
+
+// ---------------- Upload profile picture ----------------
+export const uploadProfilePicture = async (imageFile) => {
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    throw new Error("No access token found. Please login.");
+  }
+
+  const formData = new FormData();
+  formData.append("profile", imageFile);
+
+  const res = await fetch(`${API_URL}/volunteers/volunteer/profile/picture`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+      // Don't set Content-Type for FormData
+    },
+    body: formData
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.message || `Failed to upload picture: ${res.status}`);
   }
 
   return res.json();
@@ -100,4 +147,11 @@ export const getCurrentUser = () => {
     console.error("Failed to parse user data:", e);
     return null;
   }
+};
+
+// ---------------- Logout ----------------
+export const logoutUser = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("user_id");
+  localStorage.removeItem("user_data");
 };

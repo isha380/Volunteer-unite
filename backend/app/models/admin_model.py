@@ -7,6 +7,7 @@ class Admin(db.Model):
     admin_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
+    phone = db.Column(db.String(15), unique=True, nullable=False) 
     password_hash = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(20), default='admin')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -16,6 +17,7 @@ class Admin(db.Model):
             "admin_id": self.admin_id,
             "name": self.name,
             "email": self.email,
+            "phone": self.phone,  
             "role": self.role,
             "profile": self.profile,
             "created_at": self.created_at

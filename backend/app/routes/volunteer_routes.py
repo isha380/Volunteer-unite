@@ -469,12 +469,13 @@ def get_volunteer_profile():
         "interests": volunteer.interests.split(",") if volunteer.interests else [],
         "availability": volunteer.availability,
         "profile": volunteer.profile,
-        "role": volunteer.role
+        "role": volunteer.role,
+        "joined_at": volunteer.joined_at.isoformat() if volunteer.joined_at else None
     }), 200
 
 
 # ----------------------------------------------------
-# UPDATE VOLUNTEER PROFILE
+# UPDATE VOLUNTEER PROFILE 
 # ----------------------------------------------------
 @volunteers_bp.route('/volunteer/profile', methods=['PUT', 'OPTIONS'])
 @jwt_required(optional=True)
@@ -492,6 +493,7 @@ def update_volunteer_profile():
     if not volunteer:
         return jsonify({"message": "Volunteer not found"}), 404
 
+    # Accept JSON for text fields
     data = request.get_json()
 
     volunteer.name = data.get("name", volunteer.name)
@@ -499,17 +501,52 @@ def update_volunteer_profile():
     volunteer.skills = data.get("skills", volunteer.skills)
     volunteer.interests = data.get("interests", volunteer.interests)
     volunteer.availability = data.get("availability", volunteer.availability)
-    
-    photo = request.files.get("profile")
-    if photo:
-        filename = photo.filename
-        photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-        volunteer.profile = filename
 
     db.session.commit()
 
     return jsonify({"message": "Profile updated successfully"}), 200
 
+
+# ----------------------------------------------------
+# UPLOAD PROFILE PICTURE
+# ----------------------------------------------------
+@volunteers_bp.route('/volunteer/profile/picture', methods=['POST', 'OPTIONS'])
+@jwt_required(optional=True)
+def update_profile_picture():
+    if request.method == "OPTIONS":
+        return '', 204
+
+    volunteer_id = get_jwt_identity()
+    
+    if not volunteer_id:
+        return jsonify({"message": "Authentication required"}), 401
+    
+    volunteer = Volunteer.query.get(volunteer_id)
+
+    if not volunteer:
+        return jsonify({"message": "Volunteer not found"}), 404
+
+    photo = request.files.get("profile")
+    
+    if not photo:
+        return jsonify({"message": "No image provided"}), 400
+
+    # Secure the filename
+    from werkzeug.utils import secure_filename
+    filename = f"{volunteer_id}_{secure_filename(photo.filename)}"
+    
+    # Save to upload folder
+    upload_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    photo.save(upload_path)
+    
+    # Update database
+    volunteer.profile = filename
+    db.session.commit()
+
+    return jsonify({
+        "message": "Profile picture updated successfully",
+        "profile": filename
+    }), 200
 
 # ----------------------------------------------------
 # DASHBOARD STATS FOR VOLUNTEER
