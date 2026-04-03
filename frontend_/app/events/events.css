@@ -1,18 +1,17 @@
-/* Page background */
+
 .events-page {
   background: #f4f7fb;
   min-height: 100vh;
   padding: 40px 0;
 }
 
-/* Main container */
+
 .events-container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* Header */
 .events-header {
   text-align: center;
   margin-bottom: 40px;
@@ -31,7 +30,7 @@
   margin-bottom: 25px;
 }
 
-/* Search bar */
+
 .events-search {
   width: 100%;
   max-width: 520px;
@@ -47,17 +46,68 @@
   color: #9bb0c9;
 }
 
-/* Stats row */
+
 .events-stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
-/* Loading */
 .loading {
   text-align: center;
   margin-top: 100px;
   font-size: 16px;
 }
 
+
+
+.opportunities-section {
+  margin-top: 48px;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 24px;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.no-events {
+  text-align: center;
+  padding: 48px 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-events p {
+  color: #6b7280;
+  font-size: 16px;
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  font-size: 18px;
+  color: #6b7280;
+}
+
+
+@media (max-width: 768px) {
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+}

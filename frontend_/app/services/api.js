@@ -155,3 +155,4 @@ export const logoutUser = () => {
   localStorage.removeItem("user_id");
   localStorage.removeItem("user_data");
 };
+

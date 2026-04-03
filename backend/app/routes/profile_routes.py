@@ -15,8 +15,7 @@ profile_bp = Blueprint("profile", __name__)
 def get_my_profile():
     # user = get_jwt_identity()
     user_id = get_jwt_identity()
-    # user_id = user["id"]
-    # role = user["role"]
+  
     claims = get_jwt()
     role = claims.get("role")
     if role == "volunteer":

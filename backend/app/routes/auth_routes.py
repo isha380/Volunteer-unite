@@ -156,7 +156,6 @@ from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import create_access_token, verify_jwt_in_request, get_jwt_identity, get_jwt
-from app.models import User  # Keep this if you have a User model
 from app.models.volunteer_model import Volunteer
 from app.models.admin_model import Admin
 from app import db

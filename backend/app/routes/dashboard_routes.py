@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app
-from app import db
+from app.extensions import db
 from app.models import User
 from app.models.event_model import Event
 from app.models.application_model import Application

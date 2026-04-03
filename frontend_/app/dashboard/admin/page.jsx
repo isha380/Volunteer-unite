@@ -1,3 +1,4 @@
+
 'use client';
 import { useEffect, useState } from 'react';
 import './page.css';
@@ -14,6 +15,7 @@ export default function AdminDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -33,13 +35,21 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:5000/api/events', {
+      
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
+
+      const response = await fetch('http://127.0.0.1:5000/api/events/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setStats(prev => ({ ...prev, total_events: data.events?.length || 0 }));
+        setStats(prev => ({ ...prev, total_events: data?.length || 0 }));
+      } else {
+        console.error('Failed to fetch stats:', response.status);
       }
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -49,13 +59,22 @@ export default function AdminDashboard() {
   const fetchEvents = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://127.0.0.1:5000/api/events', {
+      
+      if (!token) {
+        console.error('No token found');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch('http://127.0.0.1:5000/api/events/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setEvents(data.events || []);
+        setEvents(data || []);
+      } else {
+        console.error('Failed to fetch events:', response.status);
       }
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -70,12 +89,36 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     const token = localStorage.getItem('token');
+
+    console.log(' Token check:', {
+      exists: !!token,
+      length: token?.length,
+      preview: token?.substring(0, 20) + '...'
+    });
+
+    if (!token) {
+      showNotification('Please login to continue', 'error');
+      return;
+    }
+
+    console.log('Submitting form data:', formData);
 
     try {
       const url = editingEvent
         ? `http://127.0.0.1:5000/api/events/${editingEvent.event_id}`
-        : 'http://127.0.0.1:5000/api/events';
+        : 'http://127.0.0.1:5000/api/events/';
+
+      // Keep required_skills as string (backend expects string, not array)
+      const payload = {
+        ...formData,
+        required_skills: formData.required_skills || '',
+        max_volunteers: parseInt(formData.max_volunteers)
+      };
+
+      console.log('Sending payload:', payload);
+      console.log(' Authorization header:', `Bearer ${token.substring(0, 20)}...`);
 
       const response = await fetch(url, {
         method: editingEvent ? 'PUT' : 'POST',
@@ -83,20 +126,50 @@ export default function AdminDashboard() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (response.ok) {
-        showNotification(editingEvent ? 'Event updated successfully!' : 'Event created successfully!', 'success');
-        closeModal();
-        fetchEvents();
-        fetchStats();
+        const result = await response.json();
+        console.log('Success response:', result);
+        
+        // Show success animation
+        setShowSuccessAnimation(true);
+        
+        // After 2 seconds, close modal and refresh
+        setTimeout(() => {
+          setShowSuccessAnimation(false);
+          closeModal();
+          fetchEvents();
+          fetchStats();
+          showNotification(
+            editingEvent ? 'Event updated successfully!' : 'Event created successfully!', 
+            'success'
+          );
+        }, 2000);
       } else {
-        const data = await response.json();
-        showNotification(data.error || 'Operation failed', 'error');
+        console.error('Response failed with status:', response.status);
+        
+        // Get the response text first to see what we're receiving
+        const responseText = await response.text();
+        console.error('Raw response:', responseText);
+        
+        let errorData = {};
+        try {
+          errorData = JSON.parse(responseText);
+        } catch (e) {
+          console.error('Failed to parse error response as JSON');
+        }
+        
+        console.error('Error response:', errorData);
+        showNotification(errorData.error || errorData.message || 'Operation failed', 'error');
       }
     } catch (error) {
-      showNotification('Connection error', 'error');
+      console.error('Submission error:', error);
+      showNotification('Connection error: ' + error.message, 'error');
     }
   };
 
@@ -110,7 +183,9 @@ export default function AdminDashboard() {
       location: event.location,
       category: event.category || '',
       max_volunteers: event.max_volunteers,
-      required_skills: event.required_skills || ''
+      required_skills: Array.isArray(event.required_skills) 
+        ? event.required_skills.join(', ')
+        : event.required_skills || ''
     });
     setShowModal(true);
   };
@@ -120,6 +195,7 @@ export default function AdminDashboard() {
 
     try {
       const token = localStorage.getItem('token');
+      
       const response = await fetch(`http://127.0.0.1:5000/api/events/${eventId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -129,25 +205,31 @@ export default function AdminDashboard() {
         showNotification('Event deleted successfully!', 'success');
         fetchEvents();
         fetchStats();
+      } else {
+        const errorData = await response.json();
+        showNotification(errorData.error || 'Failed to delete event', 'error');
       }
     } catch (error) {
+      console.error('Delete error:', error);
       showNotification('Failed to delete event', 'error');
     }
   };
 
   const closeModal = () => {
-    setShowModal(false);
-    setEditingEvent(null);
-    setFormData({
-      title: '',
-      description: '',
-      event_date: '',
-      event_time: '',
-      location: '',
-      category: '',
-      max_volunteers: '',
-      required_skills: ''
-    });
+    if (!showSuccessAnimation) {
+      setShowModal(false);
+      setEditingEvent(null);
+      setFormData({
+        title: '',
+        description: '',
+        event_date: '',
+        event_time: '',
+        location: '',
+        category: '',
+        max_volunteers: '',
+        required_skills: ''
+      });
+    }
   };
 
   const showNotification = (message, type) => {
@@ -309,14 +391,30 @@ export default function AdminDashboard() {
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingEvent ? 'Edit Event' : 'Create New Event'}</h2>
-              <button className="close-btn" onClick={closeModal}>×</button>
-            </div>
-            <form onSubmit={handleSubmit}>
+            {showSuccessAnimation ? (
+              <div className="success-animation">
+                <div className="success-icon-wrapper">
+                  <svg className="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="success-title">
+                  {editingEvent ? 'Event Updated!' : 'Event Created!'}
+                </h2>
+                <p className="success-message">
+                  {editingEvent ? 'Your event has been updated successfully.' : 'Your event has been created successfully.'}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="modal-header">
+                  <h2>{editingEvent ? 'Edit Event' : 'Create New Event'}</h2>
+                  <button className="close-btn" onClick={closeModal}>×</button>
+                </div>
+                <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>Event Title </label>
-                <input type="text" name="title" value={formData.title} onChange={handleInputChange} required placeholder="Beach Cleanup Drive" />
+                <label>Event Title *</label>
+                <input type="text" name="title" value={formData.title} onChange={handleInputChange} required placeholder="Bagmati Cleanup Campaign" />
               </div>
 
               <div className="form-group">
@@ -326,7 +424,7 @@ export default function AdminDashboard() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Date </label>
+                  <label>Date *</label>
                   <input type="date" name="event_date" value={formData.event_date} onChange={handleInputChange} required />
                 </div>
                 <div className="form-group">
@@ -336,7 +434,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="form-group">
-                <label>Location </label>
+                <label>Location *</label>
                 <input type="text" name="location" value={formData.location} onChange={handleInputChange} required placeholder="Marina Beach" />
               </div>
 
@@ -368,9 +466,11 @@ export default function AdminDashboard() {
                 <button type="submit" className="submit-btn">{editingEvent ? 'Update Event' : 'Create Event'}</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </div>
+  )}
+</div>
   );
 }
